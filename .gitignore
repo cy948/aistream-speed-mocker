@@ -1,37 +1,50 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Gitignore for LobeHub
+################################################################
+
+# general
+.DS_Store
+.idea
+.vscode
+.history
+.temp
+.env.local
+venv
+temp
+tmp
 
 # dependencies
-/node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+node_modules
+*.log
+*.lock
+package-lock.json
 
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
+# ci
+coverage
+.coverage
+.eslintcache
+.stylelintcache
 
 # production
-/build
+dist
+es
+lib
+logs
+test-output
+
+# umi
+.umi
+.umi-production
+.umi-test
+.dumi/tmp*
+
+# husky
+.husky/prepare-commit-msg
 
 # misc
-.DS_Store
-*.pem
+# add other ignore file below
 
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# env files (can opt-in for committing if needed)
-.env*
+# local env files
+.env*.local
 
 # vercel
 .vercel
@@ -39,3 +52,20 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.next
+.env
+public/*.js
+public/sitemap.xml
+public/sitemap-index.xml
+bun.lockb
+sitemap*.xml
+robots.txt
+
+# Serwist
+public/sw*
+public/swe-worker*
+
+*.patch
+*.pdf
+vertex-ai-key.json
+.pnpm-store
