@@ -29,7 +29,7 @@ export class BaseTokenGenerator {
     // Calculate chunk size based on token speed
     const chunkSize = this.config.tokenStrategy.default.chunkSize;
     // Consider network latency and processing delay, get the smaller one as delayMs 
-    const delayMs = 1000 / (Math.max(Math.ceil(tokenSpeed / chunkSize), 1));
+    const delayMs = 1000 / (Math.max(Math.floor(tokenSpeed / chunkSize), 1));
     return { chunkSize, delayMs };
   }
 

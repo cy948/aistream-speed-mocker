@@ -1,7 +1,6 @@
 import { TokenGenerator } from "@/services/tokenGenerator";
 import { 
   ChatCompletion, 
-  ChatCompletionChunk, 
   ChatCompletionMessage 
 } from "openai/resources";
 
@@ -53,35 +52,54 @@ export async function createStreamingResponse(
   return new ReadableStream({
     async start(controller) {
       try {
-        const chunks = [];
+        // 创建一个 TextEncoder 实例，避免重复创建
+        const encoder = new TextEncoder();
+        let batchChunks = '';
+        const BATCH_SIZE = 5; // 可以根据实际情况调整批处理大小
+        let chunkCount = 0;
         
         // Stream each chunk
         for await (const chunk of tokenGenerator.generateTokenStream()) {
-          chunks.push(chunk);
-          
+          // 仅在需要统计 token 时计算，不再存储所有 chunks
           if ('content' in chunk.choices[0]?.delta && chunk.choices[0].delta.content) {
             totalCompletionTokens += Math.ceil(chunk.choices[0].delta.content.length / 4);
           }
           
-          controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify(chunk)}\n\n`));
+          // 将 chunk 添加到批处理中
+          batchChunks += `data: ${JSON.stringify(chunk)}\n\n`;
+          chunkCount++;
+          
+          // 达到批处理大小或者是最后一个 chunk 时发送
+          if (chunkCount >= BATCH_SIZE) {
+            controller.enqueue(encoder.encode(batchChunks));
+            batchChunks = '';
+            chunkCount = 0;
+          }
         }
         
-        // Send a final chunk with usage information
-        const finalChunk: ChatCompletionChunk = {
-          id: streamId,
-          object: "chat.completion.chunk",
-          created: createdTimestamp,
-          model: modelId,
-          choices: [],
-          usage: {
-            prompt_tokens: 30,  // Example value, should be calculated based on input
-            completion_tokens: totalCompletionTokens,
-            total_tokens: 30 + totalCompletionTokens
-          }
-        };
+        // 发送剩余的批处理数据
+        if (batchChunks) {
+          controller.enqueue(encoder.encode(batchChunks));
+          batchChunks = '';
+        }
         
-        controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify(finalChunk)}\n\n`));
-        controller.enqueue(new TextEncoder().encode('data: [DONE]\n\n'));
+        // 准备最终的回应数据
+        const finalData = 
+          `data: ${JSON.stringify({
+            id: streamId,
+            object: "chat.completion.chunk",
+            created: createdTimestamp,
+            model: modelId,
+            choices: [],
+            usage: {
+              prompt_tokens: 30,
+              completion_tokens: totalCompletionTokens,
+              total_tokens: 30 + totalCompletionTokens
+            }
+          })}\n\ndata: [DONE]\n\n`;
+        
+        // 只编码一次发送最终数据
+        controller.enqueue(encoder.encode(finalData));
         controller.close();
       } catch (error) {
         controller.error(error);
