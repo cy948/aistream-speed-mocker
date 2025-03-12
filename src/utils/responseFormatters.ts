@@ -23,7 +23,7 @@ export function createChatCompletionResponse(
     choices: [
       {
         index: 0,
-        // @ts-expect-error
+        // @ts-expect-error: necessary info included
         message: {
           role: "assistant",
           content: responseText,
@@ -53,7 +53,7 @@ export async function createStreamingResponse(
   return new ReadableStream({
     async start(controller) {
       try {
-        let chunks = [];
+        const chunks = [];
         
         // Stream each chunk
         for await (const chunk of tokenGenerator.generateTokenStream()) {

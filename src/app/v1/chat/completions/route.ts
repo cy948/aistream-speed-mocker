@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
   const responseText = getResponseText(
     body.messages, 
     config.responses.customResponses, 
-    config.responses.defaultResponse
+    model?.thinking? config.responses.defaultResponse.thinking : config.responses.defaultResponse.text
   );
   
   // Check if stream is requested
