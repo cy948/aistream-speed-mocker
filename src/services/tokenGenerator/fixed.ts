@@ -1,9 +1,20 @@
 import { BaseTokenGenerator } from './base';
-import { ModelConfig } from '../../config/types';
+import { type ModelConfig } from '@/config/types';
 
-export class SimpleTokenGenerator extends BaseTokenGenerator {
+export class FixedTokenGenerator extends BaseTokenGenerator {
   constructor(model: ModelConfig, text: string) {
     super(model, text);
+    const {chunkSize, delayMs} = this.calculateChunkSizeAndDelay(model.tokenSpeed)
+    this.delayMs = chunkSize
+    this.chunkSize = delayMs
+  }
+
+  calculateChunkSizeAndDelay(tokenSpeed: number): { chunkSize: number; delayMs: number; } {
+    // Use a fixed delayMs to send message
+    let newDelayMs = this.config.tokenStrategy.fixed.delayMs;
+    // Adjust chunk size based on token speed
+    let newChunkSize = Math.max(1, Math.floor(newDelayMs * tokenSpeed / 1000));
+    return { chunkSize: newChunkSize, delayMs: newDelayMs };
   }
 
   /**
@@ -23,8 +34,7 @@ export class SimpleTokenGenerator extends BaseTokenGenerator {
     let currentIndex = 0;
     
     while (currentIndex < this.text.length) {
-      // Randomly decide to group 1-3 characters together
-      const chunkSize = Math.floor(Math.random() * 3) + 1;
+      let chunkSize = Math.max(1, this.chunkSize + Math.floor(Math.random() * this.config.tokenStrategy.fixed.randomRange));
       const endIndex = Math.min(currentIndex + chunkSize, this.text.length);
       
       // Get the chunk

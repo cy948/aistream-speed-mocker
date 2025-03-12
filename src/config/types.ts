@@ -14,8 +14,10 @@ export interface ResponseConfig {
 }
 
 export interface TokenGenerationStrategy {
-  type: 'simple';
+  type: 'auto' | 'fixed';
   options?: Record<string, unknown>;
+  fixed: { delayMs: number; randomRange: number; };
+  default: { chunkSize: number; randomRange: number; };
 }
 
 export interface AppConfig {

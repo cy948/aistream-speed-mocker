@@ -4,7 +4,7 @@ const defaultConfig: AppConfig = {
   models: [
     {
       id: 'deepseek-r1-1.5B',
-      tokenSpeed: 200,
+      tokenSpeed: 400,
       maxTokens: 4096,
       thinking: true,
     },
@@ -103,6 +103,19 @@ def matrix_power(A, n):
 \`\`\`
 \n</think>
 
+This is a mock response from the AI stream mocker. It simulates the behavior of various AI models with configurable token generation speeds.
+---
+The quantum state evolution follows Schrödinger's equation: 
+\[ i\hbar\frac{\partial}{\partial t} \Psi(\mathbf{r},t) = \hat{H} \Psi(\mathbf{r},t) \]
+Consider this Python code snippet for matrix operations:
+
+\`\`\`python
+import numpy as np
+def matrix_power(A, n):
+    # Compute Aⁿ using eigenvalue decomposition
+    λ, Q = np.linalg.eig(A)
+    return Q @ np.diag(λ**n) @ Q.T
+\`\`\`
 Network latency calculation: 
 \( \text{RTT} = 2 \times \frac{\text{Propagation Distance}}{\text{Signal Velocity}} + \text{Processing Delay} \)
 
@@ -142,11 +155,17 @@ This text contains:
   tokenStrategy: {
     /**
      * Token generation strategy
-     * Simple: Fixed delay per token (default) Most recommended for low token speeds
-     * Worker: Web worker-based token generation
-     * HighPrecision: High-precision token generation
+     * Fixed: Fixed delay per token (default) Most recommended for low token speeds
      */
-    type: 'simple'
+    type: 'auto',
+    default: {
+      chunkSize: 1,
+      randomRange: 3,
+    },
+    fixed: {
+      delayMs: 50,
+      randomRange: 20,
+    }
   }
 };
 
