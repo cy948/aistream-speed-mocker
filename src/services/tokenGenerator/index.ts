@@ -3,7 +3,7 @@ import { ModelConfig, TokenGenerationStrategy } from '../../config/types';
 import { BaseTokenGenerator } from './base';
 
 function autoSelectTokenGenerator(tokenSpeed: number) {
-  // If token speed is greater than 40, 
+  // If token speed is greater than 100, 
   // use fixed token generator to get higher performance
   if (tokenSpeed > 100) {
     return 'fixed';
